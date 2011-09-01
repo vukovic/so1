@@ -6,11 +6,9 @@
 unsigned oldISRSeg, oldISROff;
 unsigned ISRSeg, ISROff;
 
-void interrupt (*oldISR)();
-
 /*ne radi sa dx, zamijenjeno dx svuda sa bx*/
 
-void initISR(IVTNo n, unsigned isrOFF, unsigned isrSEG, unsigned& oldOFF, unsigned& oldSEG, void interrupt (**oldISRptr)()){
+void initISR(IVTNo n, unsigned isrOFF, unsigned isrSEG, unsigned& oldOFF, unsigned& oldSEG, void interrupt (*&oldISRptr)()){
 	lock()
 	ISRSeg = isrSEG;
 	ISROff = isrOFF;
@@ -39,15 +37,18 @@ void initISR(IVTNo n, unsigned isrOFF, unsigned isrSEG, unsigned& oldOFF, unsign
 		add bx, 58h
 		shl bx,1
 		shl bx,1
-		mov ax, oldISROff
-	
-		mov word ptr oldISR[2], es
-		mov word ptr oldISR[0], bx
 		
+		mov ax, oldISROff
 		mov word ptr es:bx, ax
 		add bx,2
 		mov ax, oldISRSeg
 		mov word ptr es:bx, ax
+		
+		les bx, oldISRptr
+		mov ax, word ptr oldISROff
+		mov word ptr es:[bx], ax
+		mov ax, word ptr oldOSRSeg
+		mov word ptr es:[bx+2], ax
 
 		pop bx
 		pop ax
