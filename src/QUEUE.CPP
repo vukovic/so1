@@ -100,7 +100,7 @@ void Queue::remove(PCB* pcb, int byTimer){
 	}
 	if (byTimer || cur!=first)passed = 0;                     //passed se ponistava ako je timer trazio izbacivanje, ili ako je wakeUp trazio izbacivanje prvog iz reda.
 	if (!first) last=0;
-	unlock()
+	unlock();
 }
 
 void Queue::addLast(Elem* newElem){

@@ -1,7 +1,7 @@
 //File: LOCK.CPP
 #include <LOCK.H>
 
-inline void lock(){locked=1;}
+void lock(){locked=1;}
 
 void unlock(){
 	asm cli

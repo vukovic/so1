@@ -33,7 +33,7 @@ volatile long int time = 0;
 
 PCB* current=0;
 
-int cnt=0;
+volatile int cnt=0;
 
 unsigned   tsp, tbp, tss;
 

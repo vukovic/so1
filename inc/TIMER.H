@@ -8,6 +8,8 @@ void tick();
 
 extern volatile long int time;
 
+extern volatile int cnt;
+
 void timerInic();
 void timerRestore();
 

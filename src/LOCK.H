@@ -11,7 +11,7 @@
 
 volatile extern int locked;
 
-inline void lock();
+void lock();
 
 void unlock();
 
