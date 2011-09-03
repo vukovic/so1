@@ -10,6 +10,7 @@
 
 
 volatile int locked = 0;
+volatile long int time = 0;
 
 #define SWITCH() 		asm{\
 								mov tsp, sp;\
@@ -40,16 +41,15 @@ void interrupt (*oldTimerHandler)();
 
 void interrupt timer(){
 	if (!cntxSwitchReq){
-		asm pushf
 		(*oldTimerHandler)();
 		cnt--;
+		time+=55;
 		PCB::tick();
 		tick();
 	}
 	if (cnt ==0 || cntxSwitchReq){ 
 		cntxSwitchReq=0;
 		if (!locked){
-			asm pushf
 			asm cli
 			if(running && running->status!=blocked && !running->finished && running->myThread !=sysIdle){
 				running->status = ready;
@@ -63,7 +63,6 @@ void interrupt timer(){
 			running->status=runner;
 			cnt=running->timeSlice;
 			SWITCH()
-			asm popf
 		}else{
 			cntxSwitchReq = 1;
 		}

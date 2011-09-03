@@ -6,6 +6,8 @@
 void interrupt timer();
 void tick();
 
+extern volatile long int time;
+
 void timerInic();
 void timerRestore();
 
