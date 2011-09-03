@@ -9,8 +9,8 @@ volatile PCB* running = 0;
 volatile int cntxSwitchReq=0;
 
 void dispatch(){
-	lock()
+	lock();
 	cntxSwitchReq=1;
 	timer();
-	unlock()
+	unlock();
 }

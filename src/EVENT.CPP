@@ -6,19 +6,21 @@
 #include <KERNELEV.H>
 
 Event::Event(IVTNo ivtNo){
-	lock()
+	lock();
 	myImpl = new KernelEv(ivtNo);
 	IVTEntry *myEntry;
 	if ((myEntry=IVTEntry::getEntry(ivtNo))!=0)myEntry->insertListener(this);
-	unlock()
+	unlock();
 }
 Event::~Event(){
+	lock();
 	IVTEntry *myEntry;
 	if((myEntry=IVTEntry::getEntry(myImpl->getIVTNo()))!=0)myEntry->removeListener(this);
+	unlock();
 }
 int Event::wait(int maxTimeToWait){
-	lock()
-	int ret = 5;
+	lock();
+	int ret = 1;
 	if (!myImpl->valid()) return 0;
 	if (!myImpl->getFlag() /*|| myImpl->decVal()<0*/){
 		myImpl->decVal();
@@ -27,15 +29,15 @@ int Event::wait(int maxTimeToWait){
 	else{
 		myImpl->resetFlag();
 	}
-	unlock()
+	unlock();
 	return ret;
 }
 void Event::signal(){
-	lock()
+	lock();
 	if (myImpl->incVal()<0)myImpl->deblock();
 	else {
 		myImpl->setFlag();
 		myImpl->init(0);
 	}
-	unlock()
+	unlock();
 }

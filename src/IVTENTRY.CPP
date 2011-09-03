@@ -7,6 +7,7 @@ IVTEntry* allEntries[256];
 
 
 IVTEntry::Elem::Elem(Event* event, IVTEntry* outClass){
+	lock();
 	this->event = event;
 	if(!outClass->first){
 		outClass->first = outClass->last = this;
@@ -17,12 +18,15 @@ IVTEntry::Elem::Elem(Event* event, IVTEntry* outClass){
 		outClass->last = this;
 		next=0;
 	}
+	unlock();
 }
 
 IVTEntry::IVTEntry(IVTNo n, unsigned isrOFF, unsigned isrSEG, int callOld){
+	lock();
 	initISR(n,isrOFF,isrSEG,oldOFF,oldSEG, oldHandler);
 	this->callOld = callOld;
 	allEntries[n]=this;
+	unlock();
 }
 IVTEntry::~IVTEntry(){
 	restoreISR(n, oldOFF, oldSEG);
@@ -31,16 +35,21 @@ void IVTEntry::interrupted(){
 	if (callOld) {
 		(*oldHandler)();
 	}
+	lock();
 	for (Elem* cur = first; cur; cur = cur->next){
 		cur->event->signal();
 	}
+	unlock();
 }
 
 void IVTEntry::insertListener(Event* e){
+	lock();
 	new Elem(e,this);
+	unlock();
 }
 
 void IVTEntry::removeListener(Event* e){
+	lock();
 	Elem* cur = first;
 	for(;cur && cur->event != e; cur = cur ->next);
 	if (cur){
@@ -49,6 +58,7 @@ void IVTEntry::removeListener(Event* e){
 		if (cur->prev)cur->prev->next = cur->next;
 		if (cur->next)cur->next->prev = cur->prev;
 	}
+	unlock();
 }
 
 IVTEntry* IVTEntry::getEntry(IVTNo intNo){

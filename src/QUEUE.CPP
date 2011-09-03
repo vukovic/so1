@@ -12,11 +12,12 @@
 	koje nit moze da provede blokirana, s tim sto se niti koje mogu neograniceno da 
 	ostanu blokirane stavljaju na kraj reda.
 */
+
+
 Queue& Queue::put(PCB* pcb, int timeToWait){ 
-	lock()
+	lock();
 	Data* newData = new Data(pcb, timeToWait);
 	Elem* newElem = new Elem(newData);
-	unlock()
 	if(!first){
 		first=newElem;
 		first->next=first->prev=0;
@@ -39,20 +40,23 @@ Queue& Queue::put(PCB* pcb, int timeToWait){
 			newElem->prev=cur;
 		}
 	}
+	unlock();
 	return *this;
 }
 
 /*vraca element koji je najduze u redu.*/
 PCB* Queue::get(){
+	lock();
 	Elem* cur = first;
 	if (first)first=first->next;
 	if(first){
 		first->prev=0;
-		first->data->value-=passed;
+		if (first->data->value)first->data->value-=passed;
 	}else last = 0;
 	passed=0;
 	PCB* pcb = cur?cur->data->pcb:0;
 	delete cur;
+	unlock();
 	return pcb;
 }
 
@@ -71,7 +75,7 @@ PCB* Queue::get(){
 	
 */
 void Queue::remove(PCB* pcb, int byTimer){
-	lock()
+	lock();
 	Elem* cur = first, *temp;
 	for(;cur && cur->data->pcb !=pcb; cur=cur->next);
 	if ((temp=cur)!=0){//ako je nadjen pcb
@@ -96,17 +100,22 @@ void Queue::remove(PCB* pcb, int byTimer){
 	}
 	if (byTimer || cur!=first)passed = 0;                     //passed se ponistava ako je timer trazio izbacivanje, ili ako je wakeUp trazio izbacivanje prvog iz reda.
 	if (!first) last=0;
+	unlock()
 }
 
 void Queue::addLast(Elem* newElem){
+	lock();
 	last->next=newElem;
 	newElem->prev=last;
 	newElem->next=0;
 	last = newElem;
+	unlock();
 }
 Queue::~Queue(){
+	lock();
 	for (Elem* cur = first; cur; cur=cur->next){
 		delete cur->data;
 		delete cur;
 	}
+	unlock();
 }

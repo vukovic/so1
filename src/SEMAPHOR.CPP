@@ -7,27 +7,27 @@
 
 
 Semaphore::Semaphore(int init){
-	lock()
+	lock();
 	myImpl = new KernelSem(init);
-	unlock()
+	unlock();
 }
 Semaphore::~Semaphore(){
 	delete myImpl;
 }
 int Semaphore::wait(Time maxTimeToWait){
-	lock()
+	lock();
 	int ret = 1;
 	if(myImpl->decVal()<0){
 		ret = myImpl->block(maxTimeToWait);
 	}
-	unlock()
+	unlock();
 	if(semPreempt)dispatch();
 	return ret;
 }
 void Semaphore::signal(){
-	lock()
-	if(myImpl->incVal()<0)myImpl->deblock();
-	unlock()
+	lock();
+	if(myImpl->incVal()<0)myImpl->deblock();;
+	unlock();
 	if(semPreempt)dispatch();
 }
 int Semaphore::val()const{

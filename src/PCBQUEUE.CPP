@@ -7,7 +7,7 @@
 #include <string.h>
 
 PCBQueue& PCBQueue::addLast(PCB* newPCB){
-	lock()
+	lock();
 	Elem* e = new Elem(newPCB);
 	if (!first){
 		first=e;
@@ -18,7 +18,7 @@ PCBQueue& PCBQueue::addLast(PCB* newPCB){
 		e->next=0;
 	}
 	last = e;
-	unlock()
+	unlock();
 	return *this;
 }
 PCB* PCBQueue::getPCBbyId(ID id){
@@ -42,8 +42,10 @@ PCBQueue& PCBQueue::remove(PCB* pcbToRemove){
 	return *this;
 }
 void PCBQueue::tick(){
+	lock();
 	for(Elem* cur = first; cur; cur=cur->next)
 			if (cur->pcb->blockedOn)cur->pcb->blockedOn->tick();
+	unlock();
 }
 PCBQueue::Elem::Elem(PCB* newPCB){
 	pcb=newPCB;

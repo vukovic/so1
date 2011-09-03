@@ -22,7 +22,7 @@ PCB::PCB(TName name , StackSize stackSize, Time _timeSlice, Thread* _thread):wai
 	numChildren=0;
 	numBlockedTillFinish=0;
 	//provera da li stackSize zadovoljava uslov!!!!!!!
-	lock()
+	lock();
 	unsigned int* _stack = new unsigned int[stackSize];
 
 	_stack[stackSize-1]=FP_SEG(_thread);
@@ -39,13 +39,13 @@ PCB::PCB(TName name , StackSize stackSize, Time _timeSlice, Thread* _thread):wai
 	
 	stack=_stack;
 	allPCBs.addLast(this);
-	unlock()
+	unlock();
 }
 PCB::~PCB(){
-	lock()
+	lock();
 	allPCBs.remove(this);
 	delete [] stack;
-	unlock()
+	unlock();
 }
 void PCB::entryPoint(Thread* myThrd){
 	myThrd->run();
@@ -58,14 +58,14 @@ void PCB::entryPoint(Thread* myThrd){
 	dispatch();
 }
 PCB* PCB::getPCBbyId(ID id){
-	lock()
+	lock();
 	PCB* pcb = allPCBs.getPCBbyId(id);
-	unlock()
+	unlock();
 	return pcb;
 } 
 PCB* PCB::getPCBbyName(TName name){
-	lock()
+	lock();
 	PCB* pcb = allPCBs.getPCBbyName(name);
-	unlock()
+	unlock();
 	return pcb;
 }

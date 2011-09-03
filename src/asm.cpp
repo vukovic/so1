@@ -9,10 +9,10 @@ unsigned ISRSeg, ISROff;
 /*ne radi sa dx, zamijenjeno dx svuda sa bx*/
 
 void initISR(IVTNo n, unsigned isrOFF, unsigned isrSEG, unsigned& oldOFF, unsigned& oldSEG, void interrupt (*&oldISRptr)()){
-	lock()
+	asm pushf
+	asm cli
 	ISRSeg = isrSEG;
 	ISROff = isrOFF;
-	oldISR=*oldISRptr;
 	asm{
 		push es
 		push ax
@@ -47,7 +47,7 @@ void initISR(IVTNo n, unsigned isrOFF, unsigned isrSEG, unsigned& oldOFF, unsign
 		les bx, oldISRptr
 		mov ax, word ptr oldISROff
 		mov word ptr es:[bx], ax
-		mov ax, word ptr oldOSRSeg
+		mov ax, word ptr oldISRSeg
 		mov word ptr es:[bx+2], ax
 
 		pop bx
@@ -56,10 +56,11 @@ void initISR(IVTNo n, unsigned isrOFF, unsigned isrSEG, unsigned& oldOFF, unsign
 	}
 	oldOFF = oldISROff;
 	oldSEG = oldISRSeg;
-	unlock()
+	asm popf
 }
 void restoreISR(IVTNo n, unsigned oldOFF, unsigned oldSEG){
-	lock()
+	asm pushf
+	asm cli
 	oldISROff = oldOFF;
 	oldISRSeg = oldSEG;
 	asm{
@@ -79,12 +80,12 @@ void restoreISR(IVTNo n, unsigned oldOFF, unsigned oldSEG){
 		pop bx
 		pop ax
 		pop es
-		
+		popf
 	}
-	unlock()
 }
 void editAX(PCB* pcb, int value){
-	lock()
+	asm pushf
+	asm cli
 	unsigned temp_sp,temp_ss;
 	if(pcb){
 		temp_sp=pcb->sp;
@@ -101,6 +102,6 @@ void editAX(PCB* pcb, int value){
 		pop dx
 		pop es
 		pop bx
+		popf
 	}
-	unlock()
 }

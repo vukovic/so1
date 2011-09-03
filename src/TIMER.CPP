@@ -8,10 +8,13 @@
 #include <SYSIDLE.H>
 #include <LOCK.H>
 
+
+volatile int locked = 0;
+
 #define SWITCH() 		asm{\
-								mov tsp, sp\
-								mov tbp, bp\
-								mov tss, ss\
+								mov tsp, sp;\
+								mov tbp, bp;\
+								mov tss, ss;\
 							}\
 							if (current!=0){\
 								current->sp = tsp;\
@@ -22,9 +25,9 @@
 							tss = running->ss;\
 							tbp = running->bp;\
 							asm{\
-								mov ss, tss\
-								mov sp, tsp\
-								mov bp, tbp \
+								mov ss, tss;\
+								mov sp, tsp;\
+								mov bp, tbp;\
 							}
 
 PCB* current=0;
@@ -46,6 +49,8 @@ void interrupt timer(){
 	if (cnt ==0 || cntxSwitchReq){ 
 		cntxSwitchReq=0;
 		if (!locked){
+			asm pushf
+			asm cli
 			if(running && running->status!=blocked && !running->finished && running->myThread !=sysIdle){
 				running->status = ready;
 				Scheduler::put((PCB*)running);
@@ -58,6 +63,7 @@ void interrupt timer(){
 			running->status=runner;
 			cnt=running->timeSlice;
 			SWITCH()
+			asm popf
 		}else{
 			cntxSwitchReq = 1;
 		}

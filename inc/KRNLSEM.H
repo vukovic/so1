@@ -18,7 +18,7 @@ private:
 public:
 	int block(Time	timeToWait);
 	void deblock();
-
+	
 	int decVal(){return --value;}
 	int incVal(){return value++;}
 	int getVal()const;

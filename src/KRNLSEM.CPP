@@ -11,39 +11,39 @@ KernelSem::KernelSem(int i):Qblocked(this){
 	init(i);
 }
 void KernelSem::init(int i){
-	lock()
+	lock();
 	value = i;
-	unlock()
+	unlock();
 }
 int KernelSem::block(Time timeToWait){
 	int ret = 0;
 	running->blockedOn=this;
-	lock()
+	lock();
 	running->status=blocked;
 	Qblocked.put((PCB*)running, timeToWait);
 	dispatch();
 	asm mov word ptr [bp-2], ax
-	unlock()
+	unlock();
 	return ret;
 }
 void KernelSem::deblock(){
-	lock()
+	lock();
 	PCB* pcb = Qblocked.get();
 	pcb->blockedOn=0;
 	editAX(pcb,1);
 	pcb->status=ready;
 	Scheduler::put(pcb);
-	unlock()
+	unlock();
 }
 void KernelSem::wake(PCB* pcbToWake, int byTimer){
-	lock()
+	lock();
 	Qblocked.remove(pcbToWake,byTimer);
-	unlock()
+	unlock();
 }
 void KernelSem::tick(){
-	lock()
+	lock();
 	if(Qblocked.first && ++Qblocked.passed>=Qblocked.first->data->value && Qblocked.first->data->value)wake(Qblocked.first->data->pcb,1);
-	unlock()
+	unlock();
 }
 int KernelSem::getVal()const{
 	return value;

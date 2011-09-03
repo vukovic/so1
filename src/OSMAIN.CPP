@@ -41,7 +41,7 @@ int UMain::join(){
 unsigned oldTimerOFF, oldTimerSEG;
 
 int main(int numArgs, char* vArgs[] ){
-	lock()
+	asm cli
 	//cout<<"\nOS Initializing... \n";
 	PCB* main_pcb = new PCB("main_stream",defaultStackSize,defaultTimeSlice,0);
 	running = main_pcb;
@@ -49,11 +49,11 @@ int main(int numArgs, char* vArgs[] ){
 	UMain *mainThread = new UMain(numArgs,vArgs);
 	initISR(8,FP_OFF(timer),FP_SEG(timer),oldTimerOFF,oldTimerSEG,oldTimerHandler);
 	//cout<<"\nUSER APP about to start... \n";
-	unlock()
+	asm sti
 	
 	int ret = mainThread->join();
 	
-	lock()
+	asm cli
 	//cout<<"\nUSER APP ended... \nRESTORING... \n";
 	sysIdle->stop();
 

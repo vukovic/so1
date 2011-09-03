@@ -9,7 +9,10 @@
 
 void Thread::start(){
 	myPCB->status = ready;
+	asm pushf
+	asm cli
 	Scheduler::put(myPCB);
+	asm popf
 }
 int Thread::waitToComplete(){
 	if(!myPCB->finished){
@@ -47,9 +50,9 @@ Thread::~Thread(){
 	delete myPCB;
 }
 Thread::Thread(TName name, StackSize stackSize,Time timeSlice){
-	lock()
+	lock();
 	myPCB = new PCB(name, stackSize, timeSlice, this);
-	unlock()
+	unlock();
 }
 
 /*-------------------------------------------------------------------------------
