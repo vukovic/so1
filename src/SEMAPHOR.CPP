@@ -16,7 +16,7 @@ Semaphore::~Semaphore(){
 }
 int Semaphore::wait(Time maxTimeToWait){
 	lock()
-	int ret = 5;
+	int ret = 1;
 	if(myImpl->decVal()<0){
 		ret = myImpl->block(maxTimeToWait);
 	}

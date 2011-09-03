@@ -6,9 +6,11 @@
 #include <KERNELEV.H>
 
 Event::Event(IVTNo ivtNo){
+	lock()
 	myImpl = new KernelEv(ivtNo);
 	IVTEntry *myEntry;
 	if ((myEntry=IVTEntry::getEntry(ivtNo))!=0)myEntry->insertListener(this);
+	unlock()
 }
 Event::~Event(){
 	IVTEntry *myEntry;
