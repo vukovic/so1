@@ -4,11 +4,13 @@
 #include <PCB.H>
 #include <SCHEDULE.H>
 #include <DISPATCH.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 
+KrnlSemQueue KernelSem::allSems();
 
 KernelSem::KernelSem(int i):Qblocked(this){
 	init(i);
+	allSems.addLast(this);
 }
 void KernelSem::init(int i){
 	lock();
@@ -42,7 +44,7 @@ void KernelSem::wake(PCB* pcbToWake, int byTimer){
 }
 void KernelSem::tick(){
 	lock();
-	if(Qblocked.first && ++Qblocked.passed>=Qblocked.first->data->value && Qblocked.first->data->value)wake(Qblocked.first->data->pcb,1);
+	if(Qblocked.incTime())wake(Qblocked.getHeadPCB(),1);
 	unlock();
 }
 int KernelSem::getVal()const{

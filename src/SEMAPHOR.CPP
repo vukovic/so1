@@ -3,7 +3,7 @@
 #include <SEMAPHOR.H>
 #include <KRNLSEM.H>
 #include <DISPATCH.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 
 
 Semaphore::Semaphore(int init){

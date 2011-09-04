@@ -3,7 +3,7 @@
 #include <DISPATCH.H>
 #include <TIMER.H>
 #include <PCB.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 
 volatile PCB* running = 0;
 volatile int cntxSwitchReq=0;

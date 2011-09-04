@@ -14,6 +14,7 @@ class PCB;
 class KernelSem{
 private:
 	Queue Qblocked;
+	static KrnlSemQueue allSems;
 	int  value;
 public:
 	int block(Time	timeToWait);
@@ -26,6 +27,8 @@ public:
 	
 	KernelSem(int i);
 	~KernelSem();
+	
+	static void tick(){allSems.tick();}
 	
 	void tick();
 	void wake(PCB* pcbToWake, int byTimer);

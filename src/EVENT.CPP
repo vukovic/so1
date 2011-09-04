@@ -2,7 +2,7 @@
 
 #include <EVENT.H>
 #include <IVTENTRY.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 #include <KERNELEV.H>
 
 Event::Event(IVTNo ivtNo){

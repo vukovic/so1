@@ -22,13 +22,11 @@
 #define _IVTEVENT_H_
 #include <dos.h>
 
-#define PREPAREENTRY(N,CALLPREV) asm pushf; asm cli;\
-								 void interrupt ISR_##N();\
+#define PREPAREENTRY(N,CALLPREV) void interrupt ISR_##N();\
 								 IVTEntry IVTEntry##N(N,FP_OFF(ISR_##N),FP_SEG(ISR_##N),CALLPREV);\
 								 void interrupt ISR_##N(){\
 							 		allEntries[N]->interrupted();\
-						   		 }\
-								 asm popf;
+						   		 }
 typedef unsigned char IVTNo;
 class IVTEntry;
 class Event; 

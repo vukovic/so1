@@ -25,7 +25,6 @@ public:
 	PCB* getPCBbyName(TName name);
 	PCBQueue& remove(PCB* pcbToRemove);
 	PCBQueue(){first=0;last=0;}
-	void tick();
 private:
 	Elem *first, *last;
 };

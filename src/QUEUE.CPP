@@ -3,7 +3,7 @@
 #include <KRNLSEM.H>
 #include <SCHEDULE.H>
 #include <PCB.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 
 
 
@@ -16,45 +16,37 @@
 
 Queue& Queue::put(PCB* pcb, int timeToWait){ 
 	lock();
-	Data* newData = new Data(pcb, timeToWait);
-	Elem* newElem = new Elem(newData);
-	if(!first){
-		first=newElem;
-		first->next=first->prev=0;
-		last=first;
-	}else if (newData->value==0)addLast(newElem);
-	else {
+	Elem* newElem = new Elem(pcb,timeToWait);
+	if(!first || timeToWait==0){
+		addLast(newElem);
+	}else{
+		if(first->prio)first->prio-=passed;//azurira glavu liste
+		passed = 0;
 		Elem* cur = first;
-		for (; cur->next && cur->data->value <= newData->value
-								&& cur->next->data->value!=0;cur=cur->next);
-		if (cur->data->value>newData->value){
-			if(cur->prev)cur->prev->next=newElem;
-			newElem->prev=cur->prev;
-			cur->prev=newElem;
-			newElem->next=cur;
-		}else if(!cur->next)addLast(newElem);
-		else{
-			newElem->next=cur->next;
-			if(cur->next)cur->next->prev=newElem;
-			cur->next=newElem;
-			newElem->prev=cur;
-		}
+		for (; cur->next && cur->prio && cur->prio <= timeToWait
+								&& cur->next->prio != 0; cur=cur->next);
+		if (!cur->prio || cur->prio > timeToWait)addBefore(newElem,cur);
+		else if(!cur->next)addLast(newElem);
+		else addAfter(cur,newElem);
 	}
 	unlock();
 	return *this;
 }
 
-/*vraca element koji je najduze u redu.*/
+/*
+vraca element koji moze najmanje da ceka.
+*/
+
 PCB* Queue::get(){
 	lock();
 	Elem* cur = first;
 	if (first)first=first->next;
 	if(first){
 		first->prev=0;
-		if (first->data->value)first->data->value-=passed;
+		if (first->prio)first->prio-=passed;
 	}else last = 0;
 	passed=0;
-	PCB* pcb = cur?cur->data->pcb:0;
+	PCB* pcb = cur?cur->pcb:0;
 	delete cur;
 	unlock();
 	return pcb;
@@ -76,45 +68,77 @@ PCB* Queue::get(){
 */
 void Queue::remove(PCB* pcb, int byTimer){
 	lock();
-	Elem* cur = first, *temp;
+	Elem* cur = first;
 	for(;cur && cur->data->pcb !=pcb; cur=cur->next);
-	if ((temp=cur)!=0){//ako je nadjen pcb
+	if (cur && cur!=first){//ako nadjeni nije prvi	
+		wake(cur,0);
+		delete cur;
+	}else if (cur && cur == first && !byTimer){ //ako je nadjeni prvi ali nije od timera, onda ne treba proveravati ostale
+		wake(cur,0);
+		delete cur;
+		if(first->prio)first->prio-=passed;
+		passed=0;
+	}else if (cur && cur == first && byTimer){//ako je nadjeni prvi i jeste od timera onda treba proveravati ostale.
 		do{
-			temp->data->pcb->blockedOn=0;             //podesavanja parametara pcb-a
-			if (byTimer) editAX(temp->data->pcb,2);
-			else editAX(temp->data->pcb,0);
-			temp->data->pcb->status=ready_wokenUp;
-			myKernelSem->incVal();
-			Scheduler::put(temp->data->pcb);
-
-			if (temp->prev)temp->prev->next=temp->next; //izbacivanje cur iz reda
-			if (temp->next)temp->next->prev=temp->prev;
-
-			Elem* prev = temp;                        //korak iteracije
-			temp=temp->next;
-			if (first && temp==first->next)first=temp;
-
-			delete prev;                              //brisanje elementa koji je uklonjen
-
-		}while(temp && temp->data->value && temp==first && (temp->data->value-=passed)<=0); //na sledeci element se prelazi ako ima jos elemenata, ako sledeci element nije "nula" element, ako je ciljani element bio prvi i ako je proslo dovoljno vremena da se i sledeci stavi u red spremnih.
+			wake (first,2);
+			delete cur;
+			cur = first;
+		}while(first && first->prio && first->prio-=passed<=0);
+		passed=0;
 	}
-	if (byTimer || cur!=first)passed = 0;                     //passed se ponistava ako je timer trazio izbacivanje, ili ako je wakeUp trazio izbacivanje prvog iz reda.
-	if (!first) last=0;
 	unlock();
+}
+void Queue::wake(Elem* e, int ax){
+		e->pcb->blockedOn=0;             //podesavanja parametara pcb-a
+		editAX(e->pcb,ax);
+		e->pcb->status=ready_wokenUp;
+		myKernelSem->incVal();
+		Scheduler::put(e->pcb);
+
+		if (e->prev)e->prev->next=e->next; //izbacivanje cur iz reda
+		if (e->next)e->next->prev=e->prev;
+		
+		if (e == first) first = e->next;
+		if (first==0) last = 0;
 }
 
 void Queue::addLast(Elem* newElem){
 	lock();
-	last->next=newElem;
-	newElem->prev=last;
-	newElem->next=0;
-	last = newElem;
+	if(!first){	
+		first=newElem;
+		first->next=first->prev=0;
+		last=first;
+	}else{
+		last->next=newElem;
+		newElem->prev=last;
+		newElem->next=0;
+		last = newElem;
+	}
 	unlock();
 }
+
+void Queue::addBefore(Elem* newElem, Elem* before){
+	if(before->prev)before->prev->next=newElem;
+	newElem->prev=before->prev;
+	before->prev=newElem;
+	newElem->next=before;
+	if(before==first){
+		first = before->prev;
+	}
+}
+
+void Queue::addAfter(Elem* after, Elem* newElem){
+	newElem->next=after->next;
+	if(after->next)after->next->prev=newElem;
+	after->next=newElem;
+	newElem->prev=after;
+	if (after==last)last = newElem;
+}
+
 Queue::~Queue(){
 	lock();
 	for (Elem* cur = first; cur; cur=cur->next){
-		delete cur->data;
+		wake(cur,0);
 		delete cur;
 	}
 	unlock();

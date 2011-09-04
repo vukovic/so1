@@ -4,7 +4,7 @@
 #include <dos.h>
 #include <THREAD.H>
 #include <DISPATCH.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 
 
 ID PCB::ukId=0;

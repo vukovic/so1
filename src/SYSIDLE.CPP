@@ -5,7 +5,7 @@
 #include <SEMAPHOR.H>
 #include <DISPATCH.H>
 #include <SCHEDULE.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 #include <PCB.H>
 
 volatile int systemIdleThreadStop=0;
@@ -16,7 +16,7 @@ void SystemIdle::run(){
 	while(!systemIdleThreadStop);
 };
 
-SystemIdle::SystemIdle():Thread("sys_idle"){
+SystemIdle::SystemIdle():Thread("sys_idle",defaultStackSize,1){
 	sysIdlePCB=PCB::getPCBbyName("sys_idle");
 }
 PCB* SystemIdle::pcb(){

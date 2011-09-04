@@ -42,7 +42,6 @@ public:
 	static PCBQueue allPCBs;
 	static PCB* getPCBbyId(ID);
 	static PCB* getPCBbyName(TName);
-	static void tick(){allPCBs.tick();}
 };
 
 #endif

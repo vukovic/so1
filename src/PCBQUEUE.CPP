@@ -2,7 +2,7 @@
 
 #include <PCBQUEUE.H>
 #include <PCB.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 #include <KRNLSEM.H>
 #include <string.h>
 
@@ -41,12 +41,7 @@ PCBQueue& PCBQueue::remove(PCB* pcbToRemove){
 	delete cur;
 	return *this;
 }
-void PCBQueue::tick(){
-	lock();
-	for(Elem* cur = first; cur; cur=cur->next)
-			if (cur->pcb->blockedOn)cur->pcb->blockedOn->tick();
-	unlock();
-}
+
 PCBQueue::Elem::Elem(PCB* newPCB){
 	pcb=newPCB;
 }

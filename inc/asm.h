@@ -3,7 +3,7 @@
 #ifndef _ASM_H_
 #define _ASM_H_
 #include <PCB.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 
 
 typedef unsigned char IVTNo;

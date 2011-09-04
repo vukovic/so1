@@ -4,7 +4,7 @@
 #include <SCHEDULE.H>
 #include <PCB.H>
 #include <KRNLSEM.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 
 
 void Thread::start(){
@@ -26,7 +26,7 @@ int Thread::wakeUp(){
 	if((ret = myPCB->blockedOn)!=0){
 		myPCB->blockedOn->wake(myPCB,0); // arg 0 znaci da nije od timera
 	}
-	dispatch();//proveriti da li je potreban dispatch()
+	//dispatch();//proveriti da li je potreban dispatch()
 	return ret!=0;
 }
 ID Thread::getId(){

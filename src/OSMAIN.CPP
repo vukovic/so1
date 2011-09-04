@@ -5,7 +5,7 @@
 #include <THREAD.H>
 #include <DISPATCH.H>
 #include <PCB.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 #include <asm.h>
 #include <dos.h>
 #include <IVTENTRY.H>

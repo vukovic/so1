@@ -6,11 +6,8 @@
 #include <SCHEDULE.H>
 #include <KRNLSEM.H>
 #include <SYSIDLE.H>
-#include <LOCK.H>
+#include <MYLOCK.H>
 
-
-volatile int locked = 0;
-volatile long int time = 0;
 
 #define SWITCH() 		asm{\
 								mov tsp, sp;\
@@ -43,13 +40,11 @@ void interrupt timer(){
 	if (!cntxSwitchReq){
 		(*oldTimerHandler)();
 		cnt--;
-		time+=55;
-		PCB::tick();
+		KernelSem::tick();
 		tick();
 	}
 	if (cnt ==0 || cntxSwitchReq){ 
 		cntxSwitchReq=0;
-		if (!locked){
 			asm cli
 			if(running && running->status!=blocked && !running->finished && running->myThread !=sysIdle){
 				running->status = ready;
@@ -63,8 +58,5 @@ void interrupt timer(){
 			running->status=runner;
 			cnt=running->timeSlice;
 			SWITCH()
-		}else{
-			cntxSwitchReq = 1;
-		}
 	}
 }

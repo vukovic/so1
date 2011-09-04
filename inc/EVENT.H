@@ -7,6 +7,9 @@
 //------------------------------------------------------------------------------------
 #ifndef _EVENT_H_
 #define _EVENT_H_
+
+#include <IVTENTRY.H>
+
 typedef unsigned char IVTNo;
 
 class KernelEv;
