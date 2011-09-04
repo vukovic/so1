@@ -9,23 +9,26 @@
 
 void Thread::start(){
 	myPCB->status = ready;
-	asm pushf
-	asm cli
+	lock();
 	Scheduler::put(myPCB);
-	asm popf
+	unlock();
 }
 int Thread::waitToComplete(){
+	lock()
 	if(!myPCB->finished){
 		myPCB->numBlockedTillFinish++;
 		myPCB->blockedTillFinish.wait(0);
+		unlock()
 	}
 	return myPCB->finished;
 }
 int Thread::wakeUp(){
+	lock()
 	KernelSem* ret=0;
 	if((ret = myPCB->blockedOn)!=0){
 		myPCB->blockedOn->wake(myPCB,0); // arg 0 znaci da nije od timera
 	}
+	unlock()
 	//dispatch();//proveriti da li je potreban dispatch()
 	return ret!=0;
 }
@@ -61,11 +64,16 @@ Thread::Thread(TName name, StackSize stackSize,Time timeSlice){
 	mozda treba smanjiti broj djece na 0? 
 */
 int Thread::waitForChildren(){
+	lock();
 	while(myPCB->numChildren>0){
 		myPCB->waitChildren.wait(0);
-		if(myPCB->status == ready_wokenUp)return 0;
+		if(myPCB->status == ready_wokenUp){
+			unlock();
+			return 0;
+		}
 		myPCB->numChildren--;
 	}
+	unlock();
 	return 1;
 }
 //--------------------------------------------------------------------------------

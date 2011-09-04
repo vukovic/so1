@@ -12,7 +12,9 @@ Semaphore::Semaphore(int init){
 	unlock();
 }
 Semaphore::~Semaphore(){
+	lock();
 	delete myImpl;
+	unlock();
 }
 int Semaphore::wait(Time maxTimeToWait){
 	lock();

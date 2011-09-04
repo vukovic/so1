@@ -22,23 +22,29 @@ PCBQueue& PCBQueue::addLast(PCB* newPCB){
 	return *this;
 }
 PCB* PCBQueue::getPCBbyId(ID id){
+	lock();
 	Elem* cur = first;
 	for(; cur && cur->pcb->myID!=id; cur=cur->next);
+	unlock();
 	return cur->pcb;
 }
 PCB* PCBQueue::getPCBbyName(TName name){
+	lock();
 	Elem* cur=first;
 	for(; cur && strcmp(cur->pcb->myName,name);cur=cur->next);
+	unlock();
 	return cur->pcb;
 }
 PCBQueue& PCBQueue::remove(PCB* pcbToRemove){
+	lock();
 	Elem* cur=first;
 	for(; cur && cur->pcb!=pcbToRemove;cur=cur->next);
 	if (first && cur == first ) first = first->next;
 	else if(last && cur==last)last = last->prev;
 	if(cur->prev)cur->prev->next=cur->next;
 	if(cur->next)cur->next->prev=cur->prev;
-	delete cur;
+	if (cur) delete cur;
+	unlock();
 	return *this;
 }
 

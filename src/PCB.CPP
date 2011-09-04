@@ -11,6 +11,7 @@ ID PCB::ukId=0;
 PCBQueue PCB::allPCBs=PCBQueue();
 
 PCB::PCB(TName name , StackSize stackSize, Time _timeSlice, Thread* _thread):waitChildren(0),blockedTillFinish(0){
+	lock();
 	blockedOn=0;
 	myID =ukId++;
 	myName = (name==0)?""/*"thread+myID da li moze da se koristi string.h"*/:name;
@@ -22,7 +23,7 @@ PCB::PCB(TName name , StackSize stackSize, Time _timeSlice, Thread* _thread):wai
 	numChildren=0;
 	numBlockedTillFinish=0;
 	//provera da li stackSize zadovoljava uslov!!!!!!!
-	lock();
+	
 	unsigned int* _stack = new unsigned int[stackSize];
 
 	_stack[stackSize-1]=FP_SEG(_thread);
@@ -50,11 +51,13 @@ PCB::~PCB(){
 void PCB::entryPoint(Thread* myThrd){
 	myThrd->run();
 	myThrd->myPCB->finished=1;
+	lock();
 	if(myThrd->myPCB->parent)myThrd->myPCB->parent->waitChildren.signal();
 	while(myThrd->myPCB->numBlockedTillFinish>0){
 		myThrd->myPCB->blockedTillFinish.signal();
 		myThrd->myPCB->numBlockedTillFinish--;
 	}
+	unlock();
 	dispatch();
 }
 PCB* PCB::getPCBbyId(ID id){

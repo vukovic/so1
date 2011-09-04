@@ -28,7 +28,7 @@ KrnlSemQueue& KrnlSemQueue::remove(KernelSem* krnlSemToRemove){
 	for(; cur && cur->ks!=krnlSemToRemove;cur=cur->next);
 	if(cur && cur->prev)cur->prev->next=cur->next;
 	if(cur && cur->next)cur->next->prev=cur->prev;
-	delete cur;
+    if(cur)	delete cur;
 	unlock();
 	return *this;
 }

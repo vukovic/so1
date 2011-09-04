@@ -61,6 +61,7 @@ void IVTEntry::removeListener(Event* e){
 		if (first == 0) last = 0;
 		if (cur->prev)cur->prev->next = cur->next;
 		if (cur->next)cur->next->prev = cur->prev;
+		delete cur;
 	}
 	unlock();
 }

@@ -3,17 +3,17 @@
 #ifndef _INTLOCK_H_
 #define _INTLOCK_H_
 
-//#define lock(); { asm pushf; asm cli; }
-//#define unlock(); asm popf;
+#define lock(); { asm pushf; asm cli; }
+#define unlock(); asm popf;
 
-#include <DISPATCH.H>
-#include <TIMER.H>
+//#include <DISPATCH.H>
+//#include <TIMER.H>
 
-volatile extern int locked;
+//volatile extern int locked;
 
-void lock();
+//void lock();
 
-void unlock();
+//void unlock();
 
 #endif
 
