@@ -2,7 +2,7 @@
 
 #include <SEMQUE.H>
 #include <KRNLSEM.H>
-#include <INTLOCK.H>
+#include <MYLOCK.H>
 
 KrnlSemQueue::Elem::Elem(KernelSem* newKs){
 	ks=newKs;

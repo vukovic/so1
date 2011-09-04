@@ -5,6 +5,7 @@
 
 #include <QUEUE.H>
 #include <asm.h>
+#include <SEMQUE.H>
 
 typedef unsigned int Time;
 

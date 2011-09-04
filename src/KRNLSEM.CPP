@@ -6,7 +6,7 @@
 #include <DISPATCH.H>
 #include <MYLOCK.H>
 
-KrnlSemQueue KernelSem::allSems();
+KrnlSemQueue KernelSem::allSems;
 
 KernelSem::KernelSem(int i):Qblocked(this){
 	init(i);
