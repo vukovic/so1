@@ -29,7 +29,7 @@ IVTEntry::IVTEntry(IVTNo n, unsigned isrOFF, unsigned isrSEG, int callOld){
 	unlock();
 }
 IVTEntry::~IVTEntry(){
-	restoreISR(n, oldOFF, oldSEG);
+	
 }
 void IVTEntry::interrupted(){
 	if (callOld) {
@@ -46,6 +46,10 @@ void IVTEntry::insertListener(Event* e){
 	lock();
 	new Elem(e,this);
 	unlock();
+}
+
+void IVTEntry::restore(){
+	restoreISR(n, oldOFF, oldSEG);
 }
 
 void IVTEntry::removeListener(Event* e){

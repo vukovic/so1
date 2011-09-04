@@ -28,7 +28,7 @@ public:
 	KernelSem(int i);
 	~KernelSem();
 	
-	static void tick(){allSems.tick();}
+	static void tickAll(){allSems.tick();}
 	
 	void tick();
 	void wake(PCB* pcbToWake, int byTimer);

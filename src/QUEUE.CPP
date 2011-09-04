@@ -25,7 +25,7 @@ Queue& Queue::put(PCB* pcb, int timeToWait){
 		Elem* cur = first;
 		for (; cur->next && cur->prio && cur->prio <= timeToWait
 								&& cur->next->prio != 0; cur=cur->next);
-		if (!cur->prio || cur->prio > timeToWait)addBefore(newElem,cur);
+		if (!cur->prio || (cur->prio > timeToWait))addBefore(newElem,cur);
 		else if(!cur->next)addLast(newElem);
 		else addAfter(cur,newElem);
 	}
@@ -69,7 +69,7 @@ PCB* Queue::get(){
 void Queue::remove(PCB* pcb, int byTimer){
 	lock();
 	Elem* cur = first;
-	for(;cur && cur->data->pcb !=pcb; cur=cur->next);
+	for(;cur && cur->pcb !=pcb; cur=cur->next);
 	if (cur && cur!=first){//ako nadjeni nije prvi	
 		wake(cur,0);
 		delete cur;
@@ -83,7 +83,7 @@ void Queue::remove(PCB* pcb, int byTimer){
 			wake (first,2);
 			delete cur;
 			cur = first;
-		}while(first && first->prio && first->prio-=passed<=0);
+		}while(first && first->prio && ((first->prio-=passed)<=0));
 		passed=0;
 	}
 	unlock();

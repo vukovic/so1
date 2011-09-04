@@ -56,7 +56,9 @@ int main(int numArgs, char* vArgs[] ){
 	asm cli
 	//cout<<"\nUSER APP ended... \nRESTORING... \n";
 	sysIdle->stop();
-
+	
+	for(int i = 0; i<256; i++)allEntries[i]->restore();
+	
 	restoreISR(8,oldTimerOFF, oldTimerSEG);
 	
 	delete sysIdle;

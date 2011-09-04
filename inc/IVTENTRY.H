@@ -42,6 +42,7 @@ public:
 	void insertListener(Event*);
 	void removeListener(Event*);
 	static IVTEntry* getEntry(IVTNo);
+	void restore();
 private:
 	int callOld;
 	IVTNo n;

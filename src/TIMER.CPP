@@ -39,24 +39,26 @@ void interrupt (*oldTimerHandler)();
 void interrupt timer(){
 	if (!cntxSwitchReq){
 		(*oldTimerHandler)();
+		asm cli
 		cnt--;
-		KernelSem::tick();
+		KernelSem::tickAll();
 		tick();
+		asm sti
 	}
 	if (cnt ==0 || cntxSwitchReq){ 
+		asm cli
 		cntxSwitchReq=0;
-			asm cli
-			if(running && running->status!=blocked && !running->finished && running->myThread !=sysIdle){
-				running->status = ready;
-				Scheduler::put((PCB*)running);
-			}
-			current = (PCB*)running;
-			running = Scheduler::get();
-			if (running == 0){ //ako nema spremnih to znaci da su sve niti blokirane pa se poziva sys_idle nit
-				running = sysIdle->pcb();          //aktivira se sys_idle
-			}
-			running->status=runner;
-			cnt=running->timeSlice;
-			SWITCH()
+		if(running && running->status!=blocked && !running->finished && running->myThread !=sysIdle){
+			running->status = ready;
+			Scheduler::put((PCB*)running);
+		}
+		current = (PCB*)running;
+		running = Scheduler::get();
+		if (running == 0){ //ako nema spremnih to znaci da su sve niti blokirane pa se poziva sys_idle nit
+			running = sysIdle->pcb();          //aktivira se sys_idle
+		}
+		running->status=runner;
+		cnt=running->timeSlice;
+		SWITCH()
 	}
 }
