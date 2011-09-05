@@ -41,7 +41,6 @@ PCB* Queue::get(){
 	if(first && first->next){
 		first = first->next;
 		first->prev=0;
-		firstPrio=first->prio;
 	}else last = first = 0;
 	PCB* pcb = cur?cur->pcb:0;
 	delete cur;
@@ -67,23 +66,20 @@ void Queue::remove(PCB* pcb, int byTimer){
 	lock();
 	Elem* cur = first;
 	for(;cur && cur->pcb !=pcb; cur=cur->next);
-	if (cur && cur!=first){//ako nadjeni nije prvi	
+	if (cur && !byTimer){//ako nadjeni nije prvi	
 		wake(cur,0);
 		delete cur;
-	}else if (cur && cur == first && !byTimer){ //ako je nadjeni prvi ali nije od timera, onda ne treba proveravati ostale
-		wake(cur,0);
-		if (first)firstPrio = first->prio;
-		delete cur;
-	}else if (cur && cur == first && byTimer){//ako je nadjeni prvi i jeste od timera onda treba proveravati ostale.
+	}else if (cur && byTimer){//ako je nadjeni prvi i jeste od timera onda treba proveravati ostale.
 		do{
 			wake (first,2);
 			delete cur;
 			cur = first;
-		}while(first && firstPrio=first->prio && (timeNow-first->time0 >= firstPrio));
+		}while(first && first->prio && (timeNow-first->time0 >= first->prio));
 	}
 	unlock();
 }
 void Queue::wake(Elem* e, int ax){
+		if (!e) return;
 		e->pcb->blockedOn=0;             //podesavanja parametara pcb-a
 		editAX(e->pcb,ax);
 		e->pcb->status=ready_wokenUp;
@@ -103,7 +99,6 @@ void Queue::addLast(Elem* newElem){
 		first=newElem;
 		first->next=first->prev=0;
 		last=first;
-		firstPrio = first->prio;
 	}else{
 		last->next=newElem;
 		newElem->prev=last;
@@ -118,10 +113,7 @@ void Queue::addBefore(Elem* newElem, Elem* before){
 	newElem->prev=before->prev;
 	before->prev=newElem;
 	newElem->next=before;
-	if(before==first){
-		first = before->prev;
-		firstPrio = first->prio;
-	}
+	if(before==first)	first = before->prev;
 }
 
 void Queue::addAfter(Elem* after, Elem* newElem){

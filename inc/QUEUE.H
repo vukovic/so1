@@ -20,7 +20,6 @@ private:
 	};
 	Elem *first, *last;
 	long int timeNow;									//vrijeme koje je proteklo od kad je doslo do promjene prvog elementa reda do sad.
-	int firstPrio;
 	KernelSem* myKernelSem;
 	
 	void addLast(Elem*);						//pomocna f-ja koja dodaje elem na kraj reda!
@@ -28,7 +27,7 @@ private:
 	void addAfter(Elem*,Elem*);
 	void wake(Elem*,int);
 public:
-	Queue(KernelSem* ks):first(0),last(0),myKernelSem(ks),timeNow(0),firstPrio(0){}
+	Queue(KernelSem* ks):first(0),last(0),myKernelSem(ks),timeNow(0){}
 	~Queue();
 	
 	Queue& put(PCB* pcb, int timeToWait); 		//Smijesta novi element u red odrzavajuci neopadajuci redosled vremena blokiranja.
@@ -37,6 +36,6 @@ public:
 	
 	int getHeadPrio()const{return first?first->prio:-1;}
 	PCB* getHeadPCB(){return first?first->pcb:0;}
-	int incTime(){return ++timeNow && first && ((timeNow - first->time0)>=firstPrio) && first->prio; }
+	int incTime(){return ++timeNow && first && first->prio && ((timeNow - first->time0)>=first->prio)}
 };
 #endif
