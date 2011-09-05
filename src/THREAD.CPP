@@ -14,21 +14,21 @@ void Thread::start(){
 	unlock();
 }
 int Thread::waitToComplete(){
-	lock()
+	lock();
 	if(!myPCB->finished){
 		myPCB->numBlockedTillFinish++;
 		myPCB->blockedTillFinish.wait(0);
-		unlock()
 	}
+	unlock();
 	return myPCB->finished;
 }
 int Thread::wakeUp(){
-	lock()
+	lock();
 	KernelSem* ret=0;
 	if((ret = myPCB->blockedOn)!=0){
 		myPCB->blockedOn->wake(myPCB,0); // arg 0 znaci da nije od timera
 	}
-	unlock()
+	unlock();
 	//dispatch();//proveriti da li je potreban dispatch()
 	return ret!=0;
 }

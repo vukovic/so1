@@ -16,16 +16,14 @@
 
 Queue& Queue::put(PCB* pcb, int timeToWait){ 
 	lock();
-	Elem* newElem = new Elem(pcb,timeToWait);
+	Elem* newElem = new Elem(pcb,timeToWait,timeNow);
 	if(!first || timeToWait==0){
 		addLast(newElem);
 	}else{
-		if(first->prio)first->prio-=passed;//azurira glavu liste
-		passed = 0;
 		Elem* cur = first;
-		for (; cur->next && cur->prio && cur->prio <= timeToWait
+		for (; cur->next && cur->prio && (cur->prio-(timeNow-cur->time0) <= timeToWait)
 								&& cur->next->prio != 0; cur=cur->next);
-		if (!cur->prio || (cur->prio > timeToWait))addBefore(newElem,cur);
+		if (!cur->prio || (cur->prio - (timeNow-cur->time0) > timeToWait))addBefore(newElem,cur);
 		else if(!cur->next)addLast(newElem);
 		else addAfter(cur,newElem);
 	}
@@ -40,12 +38,11 @@ vraca element koji moze najmanje da ceka.
 PCB* Queue::get(){
 	lock();
 	Elem* cur = first;
-	if (first)first=first->next;
-	if(first){
+	if(first && first->next){
+		first = first->next;
 		first->prev=0;
-		if (first->prio)first->prio-=passed;
-	}else last = 0;
-	passed=0;
+		firstPrio=first->prio;
+	}else last = first = 0;
 	PCB* pcb = cur?cur->pcb:0;
 	delete cur;
 	unlock();
@@ -75,16 +72,14 @@ void Queue::remove(PCB* pcb, int byTimer){
 		delete cur;
 	}else if (cur && cur == first && !byTimer){ //ako je nadjeni prvi ali nije od timera, onda ne treba proveravati ostale
 		wake(cur,0);
+		if (first)firstPrio = first->prio;
 		delete cur;
-		if(first->prio)first->prio-=passed;
-		passed=0;
 	}else if (cur && cur == first && byTimer){//ako je nadjeni prvi i jeste od timera onda treba proveravati ostale.
 		do{
 			wake (first,2);
 			delete cur;
 			cur = first;
-		}while(first && first->prio && ((first->prio-=passed)<=0));
-		passed=0;
+		}while(first && firstPrio=first->prio && (timeNow-first->time0 >= firstPrio));
 	}
 	unlock();
 }
@@ -108,6 +103,7 @@ void Queue::addLast(Elem* newElem){
 		first=newElem;
 		first->next=first->prev=0;
 		last=first;
+		firstPrio = first->prio;
 	}else{
 		last->next=newElem;
 		newElem->prev=last;
@@ -124,6 +120,7 @@ void Queue::addBefore(Elem* newElem, Elem* before){
 	newElem->next=before;
 	if(before==first){
 		first = before->prev;
+		firstPrio = first->prio;
 	}
 }
 
