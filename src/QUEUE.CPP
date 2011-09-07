@@ -6,6 +6,18 @@
 #include <MYLOCK.H>
 
 
+//---------------------------------------------------
+#include <iostream.h>
+void Queue::write(){
+	lock();
+	for(Elem* e = first; e; e =e->next){
+		cout<<e->prio<<" ";
+	}
+	cout<<endl<<endl;
+	unlock();
+
+}
+//----------------------------------------------------
 
 /*
 	Ova f-ja dodaje pcb u red blokiranih odrzavajuci neopadajuci poredak po vremenu
