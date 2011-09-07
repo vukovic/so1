@@ -21,16 +21,15 @@ int Semaphore::wait(Time maxTimeToWait){
 	int ret = 1;
 	if(myImpl->decVal()<0){
 		ret = myImpl->block(maxTimeToWait);
-	}
+	}else if(semPreempt)dispatch();
 	unlock();
-	if(semPreempt)dispatch();
 	return ret;
 }
 void Semaphore::signal(){
 	lock();
 	if(myImpl->incVal()<0)myImpl->deblock();;
-	unlock();
 	if(semPreempt)dispatch();
+	unlock();
 }
 int Semaphore::val()const{
 	return myImpl->getVal();

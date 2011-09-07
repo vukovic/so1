@@ -37,16 +37,14 @@ unsigned   tsp, tbp, tss;
 void interrupt (*oldTimerHandler)();
 
 void interrupt timer(){
+	asm cli
 	if (!cntxSwitchReq){
 		(*oldTimerHandler)();
-		asm cli
 		cnt--;
 		KernelSem::tickAll();
 		tick();
-		asm sti
 	}
 	if (cnt ==0 || cntxSwitchReq){ 
-		asm cli
 		cntxSwitchReq=0;
 		if(running && running->status!=blocked && !running->finished && running->myThread !=sysIdle){
 			running->status = ready;

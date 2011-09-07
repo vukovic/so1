@@ -40,7 +40,8 @@ PCBQueue& PCBQueue::remove(PCB* pcbToRemove){
 	Elem* cur=first;
 	for(; cur && cur->pcb!=pcbToRemove;cur=cur->next);
 	if (first && cur == first ) first = first->next;
-	else if(last && cur==last)last = last->prev;
+	else if (!first) last = 0;
+	if(last && cur==last)last = last->prev;
 	if(cur->prev)cur->prev->next=cur->next;
 	if(cur->next)cur->next->prev=cur->prev;
 	if (cur) delete cur;

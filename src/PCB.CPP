@@ -5,16 +5,25 @@
 #include <THREAD.H>
 #include <DISPATCH.H>
 #include <MYLOCK.H>
-
+#include <math.h>
+#include <string.h>
 
 ID PCB::ukId=0;
 PCBQueue PCB::allPCBs=PCBQueue();
 
-PCB::PCB(TName name , StackSize stackSize, Time _timeSlice, Thread* _thread):waitChildren(0),blockedTillFinish(0){
+PCB::PCB(TName _name , StackSize stackSize, Time _timeSlice, Thread* _thread):waitChildren(0),blockedTillFinish(0){
 	lock();
 	blockedOn=0;
 	myID =ukId++;
-	myName = (name==0)?""/*"thread+myID da li moze da se koristi string.h"*/:name;
+	if (_name){
+		myName = new char[strlen(_name)];
+		strcpy(myName,_name);
+	}else{
+		TName myIDstr = new char[floor(log10(myID?myID:1))+1]
+		myName = new char[strlen("thread") + strlen(itoa(myID,myIDstr,10))];
+		strcat(strcpy(myName,"thread"),myIDstr);
+		delete myIDstr;
+	}
 	parent = (PCB*)running;
 	if(parent)parent->numChildren++;
 	myThread=_thread;
@@ -46,6 +55,7 @@ PCB::~PCB(){
 	lock();
 	allPCBs.remove(this);
 	delete [] stack;
+	delete myName;
 	unlock();
 }
 void PCB::entryPoint(Thread* myThrd){

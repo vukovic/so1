@@ -3,6 +3,8 @@
 #include <IVTENTRY.H>
 #include <asm.h>
 #include <EVENT.H>
+#include <DISPATCH.H>
+
 IVTEntry* allEntries[256];
 
 
@@ -39,6 +41,7 @@ void IVTEntry::interrupted(){
 	for (Elem* cur = first; cur; cur = cur->next){
 		cur->event->signal();
 	}
+	dispatch();
 	unlock();
 }
 
@@ -49,6 +52,7 @@ void IVTEntry::insertListener(Event* e){
 }
 
 void IVTEntry::restore(){
+	for (Elem* e = first; e; e=e->next)remove(e);
 	restoreISR(n, oldOFF, oldSEG);
 }
 
@@ -59,6 +63,7 @@ void IVTEntry::removeListener(Event* e){
 	if (cur){
 		if (cur == first) first = first->next;
 		if (first == 0) last = 0;
+		if (last && cur == last) last = last->prev;
 		if (cur->prev)cur->prev->next = cur->next;
 		if (cur->next)cur->next->prev = cur->prev;
 		delete cur;

@@ -19,8 +19,8 @@ void KernelSem::init(int i){
 }
 int KernelSem::block(Time timeToWait){
 	int ret = 0;
-	running->blockedOn=this;
 	lock();
+	running->blockedOn=this;
 	running->status=blocked;
 	Qblocked.put((PCB*)running, timeToWait);
 	dispatch();
@@ -51,6 +51,8 @@ int KernelSem::getVal()const{
 	return value;
 }
 KernelSem::~KernelSem(){
-	//sta ovdje treba da se uradi???
+	lock();
+	allSems.remove(this);
+	unlock();
 }
 

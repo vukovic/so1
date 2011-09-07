@@ -25,8 +25,7 @@ int Event::wait(int maxTimeToWait){
 	if (!myImpl->getFlag() /*|| myImpl->decVal()<0*/){
 		myImpl->decVal();
 		ret=myImpl->block(maxTimeToWait);
-	}
-	else{
+	}else{
 		myImpl->resetFlag();
 	}
 	unlock();
