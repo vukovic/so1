@@ -36,6 +36,6 @@ public:
 	
 	int getHeadPrio()const{return first?first->prio:-1;}
 	PCB* getHeadPCB(){return first?first->pcb:0;}
-	int incTime(){return ++timeNow && first && first->prio && ((timeNow - first->time0)>=first->prio)}
+	int incTime(){return ++timeNow && first && first->prio && ((timeNow - first->time0)>=first->prio);}
 };
 #endif

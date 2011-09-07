@@ -7,20 +7,23 @@
 #include <MYLOCK.H>
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
+
 
 ID PCB::ukId=0;
 PCBQueue PCB::allPCBs=PCBQueue();
 
 PCB::PCB(TName _name , StackSize stackSize, Time _timeSlice, Thread* _thread):waitChildren(0),blockedTillFinish(0){
 	lock();
+	if (stackSize > (32*1024))exit(0);
 	blockedOn=0;
 	myID =ukId++;
 	if (_name){
 		myName = new char[strlen(_name)];
 		strcpy(myName,_name);
 	}else{
-		TName myIDstr = new char[floor(log10(myID?myID:1))+1]
-		myName = new char[strlen("thread") + strlen(itoa(myID,myIDstr,10))];
+		TName myIDstr = new char[floor(log10(myID?myID:1))+2];
+		myName = new char[strlen("thread") + sprintf(myIDstr,"%d",myID)];
 		strcat(strcpy(myName,"thread"),myIDstr);
 		delete myIDstr;
 	}

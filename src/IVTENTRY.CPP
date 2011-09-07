@@ -52,9 +52,11 @@ void IVTEntry::insertListener(Event* e){
 }
 
 void IVTEntry::restore(){
-	for (Elem* e = first; e; e=e->next)remove(e);
+	for (Elem* e = first; e; e=e->next)removeListener(e->event);
 	restoreISR(n, oldOFF, oldSEG);
 }
+
+
 
 void IVTEntry::removeListener(Event* e){
 	lock();
