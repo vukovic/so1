@@ -7,6 +7,7 @@ class PCB;
 
 extern volatile PCB* running;
 extern volatile int cntxSwitchReq;
+extern volatile int cntxSwitchAllowed;
 
 void dispatch();
 #endif

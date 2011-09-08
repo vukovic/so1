@@ -63,13 +63,13 @@ PCB::~PCB(){
 }
 void PCB::entryPoint(Thread* myThrd){
 	myThrd->run();
-	myThrd->myPCB->finished=1;
 	lock();
 	if(myThrd->myPCB->parent)myThrd->myPCB->parent->waitChildren.signal();
 	while(myThrd->myPCB->numBlockedTillFinish>0){
 		myThrd->myPCB->blockedTillFinish.signal();
 		myThrd->myPCB->numBlockedTillFinish--;
 	}
+	myThrd->myPCB->finished=1;
 	unlock();
 	dispatch();
 }

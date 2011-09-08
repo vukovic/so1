@@ -8,9 +8,9 @@
 
 
 void Thread::start(){
-	myPCB->status = ready;
 	lock();
 	Scheduler::put(myPCB);
+	myPCB->status = ready;
 	unlock();
 }
 int Thread::waitToComplete(){

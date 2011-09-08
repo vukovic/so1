@@ -45,18 +45,20 @@ void interrupt timer(){
 		tick();
 	}
 	if (cnt ==0 || cntxSwitchReq){ 
-		cntxSwitchReq=0;
-		if(running && running->status!=blocked && !running->finished && running->myThread !=sysIdle){
-			running->status = ready;
-			Scheduler::put((PCB*)running);
-		}
-		current = (PCB*)running;
-		running = Scheduler::get();
-		if (running == 0){ //ako nema spremnih to znaci da su sve niti blokirane pa se poziva sys_idle nit
-			running = sysIdle->pcb();          //aktivira se sys_idle
-		}
-		running->status=runner;
-		cnt=running->timeSlice;
-		SWITCH()
+		if(!locked){
+			cntxSwitchReq=0;
+			if(running && running->status!=blocked && !running->finished && running->myThread !=sysIdle){
+				running->status = ready;
+				Scheduler::put((PCB*)running);
+			}
+			current = (PCB*)running;
+			running = Scheduler::get();
+			if (running == 0){ //ako nema spremnih to znaci da su sve niti blokirane pa se poziva sys_idle nit
+				running = sysIdle->pcb();          //aktivira se sys_idle
+			}
+			running->status=runner;
+			cnt=running->timeSlice;
+			SWITCH()
+		}else cntxSwitchReq=1;
 	}
 }

@@ -3,7 +3,11 @@
 #ifndef _INTLOCK_H_
 #define _INTLOCK_H_
 
-#define lock(); { asm pushf; asm cli; }
-#define unlock(); asm popf;
+extern volatile int locked;
+
+extern inline void lock();
+
+void unlock();
+
 
 #endif
