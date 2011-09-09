@@ -11,7 +11,7 @@ private:
 	class Elem{
 		PCB* pcb;
 		int prio;
-		int time0;
+		unsigned long int time0;
 		Elem *next, *prev;
 	public:
 		friend class Queue;
@@ -19,7 +19,7 @@ private:
 		int getPrio() const {return prio;}
 	};
 	Elem *first, *last;
-	long int timeNow;									//vrijeme koje je proteklo od kad je doslo do promjene prvog elementa reda do sad.
+	unsigned long int timeNow;									//vrijeme koje je proteklo od kad je doslo do promjene prvog elementa reda do sad.
 	KernelSem* myKernelSem;
 	
 	void addLast(Elem*);						//pomocna f-ja koja dodaje elem na kraj reda!
