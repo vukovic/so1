@@ -3,8 +3,11 @@
 #include <HEAP.H>
 #include <asm.h>
 #include <MYLOCK.H>
+#include <KRNLSEM.H>
+#include <PCB.H>
 
-void Heap::insert(PCB* pcb, int prio){
+
+void Heap::put(PCB* pcb, int prio){
 	lock();
 	int indx=++last;
 	if((indx >= capacity){
@@ -13,12 +16,11 @@ void Heap::insert(PCB* pcb, int prio){
 		delete [] heap;
 		heap = _heap;
 	}
-	heap[indx] = Elem(pcb,prio,timeNow);
+	heap[indx] = Elem(pcb,prio,timeNow,this);
 	propellUp(indx);
 	unlock();
 }
-
-Heap::Elem& Heap::remove(int indx = 1){
+Heap::Elem* Heap::remove(int indx = 1){
 	lock();
 	Elem* toRemove = 0;
 	if (last>=1){
@@ -33,7 +35,7 @@ Heap::Elem& Heap::remove(int indx = 1){
 
 void Heap::propellUp(int indx){
 	while(indx>1 && heap[indx] < heap[parent(indx)]){
-		Elem* temp = heap[parent(indx)];
+		Elem temp = heap[parent(indx)];
 		heap[parent(indx)]=heap[indx];
 		heap[indx]=temp;
 		indx=parent(indx);
@@ -42,8 +44,8 @@ void Heap::propellUp(int indx){
 
 void Heap::propellDown(int indx){
 	while(((lChild(indx)<=last) && (heap[indx] > heap[lChild(indx)]))||
-			((rChild(indx)<=last) && (heap[indx] > heap[rChild(indx)])){
-		Elem min(0,0,0);
+			((rChild(indx)<=last) && (heap[indx] > heap[rChild(indx)]))){
+		Elem min;
 		if ((lChild(indx)<=last) && (rChild(indx)<=last))min = heap[(lChild(indx) < rChild(indx)) ? lChild(indx):rChild(indx)];
 		else min = heap[ (lChild(indx)<=last)? lChild(indx):rChild(indx);
 		int indx2 = indx;
@@ -85,11 +87,9 @@ void wake(int indx, int ax){
 	myKernelSem->incVal();
 	Scheduler::put(heap[indx].pcb);
 }
-
-inline int Heap::Elem::priority(){
+int Heap::Elem::priority(){
 	return (myHeap->timeNow - time0);
 }
-
 bool operator<(Heap::Elem& e1, Heap::Elem& e2){
 	return (!e2.prio && e1.prio) || (e1.prio && (e1.priority()<e2.priority()));
 }

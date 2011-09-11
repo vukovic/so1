@@ -3,8 +3,8 @@
 #ifndef _HEAP_H_
 #define _HEAP_H_
 
-#include <KrnlSem.h>
-#include <PCB.H>
+class KernelSem;
+class PCB;
 
 class Heap{
 public:
@@ -24,10 +24,11 @@ public:
 protected:
 	class Elem{
 	public:
-		Elem(PCB* _pcb, int prio, unsigned long int _time0, Heap* _myHeap):pcb(_pcb),time0(_time0),myHeap(_myHeap){}
+		Elem(PCB* _pcb, int _prio, unsigned long int _time0, Heap* _myHeap):pcb(_pcb),prio(_prio),time0(_time0),myHeap(_myHeap){}
+		Elem():pcb(0),time0(0),myHeap(0),prio(0){}
 		friend int operator<(Elem& e1, Elem& e2);
 		friend int operator>(Elem& e1, Elem& e2);
-		friend int operator == (Elem& e1, Elem& e2);
+		friend int operator== (Elem& e1, Elem& e2);
 		int priority();
 	private:
 		Heap* myHeap;
@@ -36,7 +37,7 @@ protected:
 		unsigned long int time0;
 	};
 private:
-	void remove (int indx = 1);
+	Elem* remove (int indx = 1);
 	void wake(int indx, int ax);
 	
 	void propellUp(int indx);
