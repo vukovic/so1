@@ -3,7 +3,8 @@
 #ifndef _KRNLSEM_H_
 #define _KRNLSEM_H_
 
-#include <QUEUE.H>
+//#include <QUEUE.H>
+#include <HEAP.H>
 #include <asm.h>
 #include <SEMQUE.H>
 
@@ -14,7 +15,7 @@ class PCB;
 
 class KernelSem{
 private:
-	Queue Qblocked;
+	Heap Qblocked;
 	static KrnlSemQueue allSems;
 	int  value;
 public:
