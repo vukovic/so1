@@ -1,9 +1,11 @@
 //File: LOCK.CPP
 #include <MYLOCK.H>
+#include <DISPATCH.H>
+#include <TIMER.H>
 
 volatile int locked = 0;
 
-inline void lock(){locked=1;}
+void lock(){locked=1;}
 
 void unlock(){
 	asm cli
