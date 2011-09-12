@@ -8,6 +8,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 
 ID PCB::ukId=0;
